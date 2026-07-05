@@ -60,10 +60,17 @@ check "subdown0 -> count 0"   "$(sub)"   "0"
 # 5. done and notification states
 sh "$SCRIPT" done
 check "done -> white"         "$(state)" "white"
+# notifications reflect blocks/idle during an ACTIVE turn
+reset
+printf '{"cwd":"/x/p","prompt":"go"}' | sh "$SCRIPT" capture
 printf '{"message":"Claude needs your permission to run bash"}' | sh "$SCRIPT" notify
 check "notify permission -> red" "$(state)" "red"
 printf '{"message":"Claude is waiting for your input"}' | sh "$SCRIPT" notify
 check "notify idle -> yellow" "$(state)" "yellow"
+# a notification must NOT override a done (white) tab
+sh "$SCRIPT" done
+printf '{"message":"waiting for your input"}' | sh "$SCRIPT" notify
+check "notify does not override white" "$(state)" "white"
 
 # 5b. regression: a straggler SubagentStop after done must NOT resurrect green
 reset
@@ -118,6 +125,11 @@ fi
 # 8. version and help do not error
 sh "$SCRIPT" version >/dev/null 2>&1 && pass "version ok" || fail "version ok"
 sh "$SCRIPT" help    >/dev/null 2>&1 && pass "help ok"    || fail "help ok"
+
+# 9. exhaustive state-machine transition matrix (STATE_MACHINE.md)
+echo
+echo "=== state-machine matrix (tests/state_machine.sh) ==="
+if sh "$HERE/tests/state_machine.sh"; then :; else FAILED=$((FAILED + 1)); fi
 
 echo
 if [ "$FAILED" -eq 0 ]; then

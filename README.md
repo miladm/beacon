@@ -27,10 +27,10 @@ It is modeled as a small state machine rather than independent handlers:
 - `UserPromptSubmit` -> **green** (and captures the topic).
 - Any tool activity (`PreToolUse` / `PostToolUse`) -> **green**, or **purple** if a subagent is running. This is what clears **red**/**yellow** the moment the agent resumes after you unblock it.
 - `PreToolUse(Task)` -> **purple** (subagent counter++); `SubagentStop` -> counter--, back to **green** at zero.
-- `Notification` -> **red** (permission) or **yellow** (idle).
+- `Notification` -> **red** (permission) or **yellow** (idle) - but only during an active turn.
 - `Stop` -> **white**.
 
-Guard: subagent and tool events never override **white** (done); a done tab only leaves **white** on your next prompt. This prevents a late `SubagentStop` or stray tool event from resurrecting a finished tab.
+Guard: **white** (done) is sticky - no tool, subagent, or notification event overrides it; a done tab only leaves **white** on your next prompt. This prevents a late `SubagentStop`, a stray tool event, or the idle notification from resurrecting or recoloring a finished tab. Full spec + transition table: [STATE_MACHINE.md](STATE_MACHINE.md).
 
 ## How it works
 

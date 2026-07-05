@@ -174,9 +174,12 @@ case "$cmd" in
       if [ "$n" -gt 0 ]; then echo purple > "$STATE"; else echo green > "$STATE"; fi
     fi
     paint ;;
-  notify)                                   # Notification: blocked or idle
+  notify)                                   # Notification: blocked or idle (never overrides done)
     input=$(cat); msg=$(printf '%s' "$input" | json_get message)
-    case "$msg" in *ermission*) echo red > "$STATE" ;; *) echo yellow > "$STATE" ;; esac
+    cur=""; [ -r "$STATE" ] && IFS= read -r cur < "$STATE" 2>/dev/null
+    if [ "$cur" != white ]; then
+      case "$msg" in *ermission*) echo red > "$STATE" ;; *) echo yellow > "$STATE" ;; esac
+    fi
     paint ;;
   done)                                     # Stop: turn finished
     echo 0 > "$SUB"; echo white > "$STATE"; paint ;;
