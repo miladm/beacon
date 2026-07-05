@@ -165,6 +165,15 @@ case "$cmd" in
       green|purple) if [ "$n" -gt 0 ]; then echo purple > "$STATE"; else echo green > "$STATE"; fi ;;
     esac
     paint ;;
+  work)                                     # Pre/PostToolUse: agent is active again
+    # Any tool activity means the agent resumed; recompute the working state.
+    # This clears red/yellow after you unblock it. Never resurrect a done tab.
+    cur=""; [ -r "$STATE" ] && IFS= read -r cur < "$STATE" 2>/dev/null
+    if [ "$cur" != white ]; then
+      n=$(cat "$SUB" 2>/dev/null); n=${n:-0}
+      if [ "$n" -gt 0 ]; then echo purple > "$STATE"; else echo green > "$STATE"; fi
+    fi
+    paint ;;
   notify)                                   # Notification: blocked or idle
     input=$(cat); msg=$(printf '%s' "$input" | json_get message)
     case "$msg" in *ermission*) echo red > "$STATE" ;; *) echo yellow > "$STATE" ;; esac

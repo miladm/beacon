@@ -16,11 +16,21 @@ Run several Claude Code agents in VS Code terminal tabs and you quickly lose tra
 
 | Dot | Meaning | Fires on (Claude Code hook) |
 |-----|---------|------------------------------|
-| 🟢 green  | Main agent is working              | `UserPromptSubmit` |
+| 🟢 green  | Main agent is working              | `UserPromptSubmit`, any `PreToolUse` / `PostToolUse` |
 | 🟣 purple | At least one subagent is running   | `PreToolUse` (Task) / `SubagentStop` |
 | 🟡 yellow | Idle, waiting on you               | `Notification` (idle) |
 | 🔴 red    | Blocked, needs your approval       | `Notification` (permission) |
 | ⚪ white  | Done, your turn                    | `Stop` |
+
+It is modeled as a small state machine rather than independent handlers:
+
+- `UserPromptSubmit` -> **green** (and captures the topic).
+- Any tool activity (`PreToolUse` / `PostToolUse`) -> **green**, or **purple** if a subagent is running. This is what clears **red**/**yellow** the moment the agent resumes after you unblock it.
+- `PreToolUse(Task)` -> **purple** (subagent counter++); `SubagentStop` -> counter--, back to **green** at zero.
+- `Notification` -> **red** (permission) or **yellow** (idle).
+- `Stop` -> **white**.
+
+Guard: subagent and tool events never override **white** (done); a done tab only leaves **white** on your next prompt. This prevents a late `SubagentStop` or stray tool event from resurrecting a finished tab.
 
 ## How it works
 

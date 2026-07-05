@@ -3,7 +3,8 @@
   "hooks": {
     "SessionStart":     [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh start" } ] } ],
     "UserPromptSubmit": [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh capture" } ] } ],
-    "PreToolUse":       [ { "matcher": "Task", "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh subup" } ] } ],
+    "PreToolUse":       [ { "matcher": "Task", "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh subup" } ] }, { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh work" } ] } ],
+    "PostToolUse":      [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh work" } ] } ],
     "SubagentStop":     [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh subdown" } ] } ],
     "Notification":     [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh notify" } ] } ],
     "Stop":             [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh done" } ] } ],

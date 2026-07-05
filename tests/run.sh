@@ -80,6 +80,27 @@ printf '{"message":"needs your permission"}' | sh "$SCRIPT" notify  # -> red
 sh "$SCRIPT" subdown                                               # straggler
 check "straggler subdown keeps red" "$(state)" "red"
 
+# 5c. resuming after a block: tool activity (work) must clear red/yellow -> green
+reset
+printf '{"cwd":"/x/p","prompt":"do work"}' | sh "$SCRIPT" capture   # green
+printf '{"message":"needs your permission"}' | sh "$SCRIPT" notify  # red (blocked)
+sh "$SCRIPT" work                                                   # user unblocked; agent runs a tool
+check "work clears red -> green" "$(state)" "green"
+printf '{"message":"waiting for your input"}' | sh "$SCRIPT" notify # yellow
+sh "$SCRIPT" work
+check "work clears yellow -> green" "$(state)" "green"
+# work must NOT resurrect a done tab
+sh "$SCRIPT" done
+sh "$SCRIPT" work
+check "work does not resurrect white" "$(state)" "white"
+# work reflects an active subagent as purple
+reset
+printf '{"cwd":"/x/p","prompt":"do work"}' | sh "$SCRIPT" capture
+sh "$SCRIPT" subup                                                  # count 1
+printf '{"message":"needs your permission"}' | sh "$SCRIPT" notify  # red
+sh "$SCRIPT" work                                                   # active, subagent still running
+check "work with subagent -> purple" "$(state)" "purple"
+
 # 6. the device actually receives the topic text
 reset
 printf '{"cwd":"/x/demo","prompt":"hello world"}' | sh "$SCRIPT" capture
