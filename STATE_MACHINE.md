@@ -47,7 +47,7 @@ Let `w()` = `purple` if `SUB > 0` else `green` (the resolved working color).
   agent resumes; never resurrects a done tab.)
 - **task_start**: `SUB <- SUB + 1`; if `STATE in {green, purple, unset}` then `STATE <- purple`.
 - **subagent_end**: `SUB <- max(0, SUB - 1)`; if `STATE in {green, purple}` then `STATE <- w()`.
-- **perm**: if `STATE != white` then `STATE <- red`.
+- **perm**: `STATE <- red` (always; a permission request is actionable even from a done tab).
 - **idle**: if `STATE != white` then `STATE <- yellow`.
 - **stop**: `SUB <- 0`; `STATE <- white`.
 - **session_start**: `STATE <- white`; `SUB <- 0`; clear topic.
@@ -55,11 +55,12 @@ Let `w()` = `purple` if `SUB > 0` else `green` (the resolved working color).
 
 ### Invariants / guards
 
-1. `white` is sticky: only **prompt** leaves it (a new turn), and only
-   **stop**/**session_start** enter it. No other event (`tool`, `task_start`,
-   `subagent_end`, `perm`, `idle`) overrides `white`. This stops a late
-   `SubagentStop`, a stray tool event, or the ~60s idle notification from
-   resurrecting or recoloring a finished tab.
+1. `white` is sticky, with one exception: only **prompt** (new turn, -> green) or
+   **perm** (an actionable permission request, -> red) leave it; **stop**/
+   **session_start** enter it. Everything else (`tool`, `task_start`,
+   `subagent_end`, `idle`) leaves `white` untouched. This stops a late
+   `SubagentStop`, a stray tool event, or the ~60s idle nudge from resurrecting
+   or recoloring a finished tab, while still surfacing a real approval prompt.
 2. `subagent_end` and `task_start` never override an **attention** state
    (`red`/`yellow`); they only re-resolve the working color when already working.
    `tool` is the one that clears attention states (agent is provably active again).
@@ -78,10 +79,11 @@ Each cell is the next `STATE`. Counter changes are shown as `SUB++` / `SUB--`
 | purple  | green | purple | purple (SUB++) | SUB>1 ? purple : green (SUB--) | red | yellow | white |
 | yellow  | green | green  | yellow (SUB++) | yellow (SUB--) | red  | yellow | white |
 | red     | green | green  | red (SUB++)    | red (SUB--)    | red  | yellow | white |
-| white   | green | white  | white (SUB++)  | white (SUB--)  | **white** | **white** | white |
+| white   | green | white  | white (SUB++)  | white (SUB--)  | **red** | white | white |
 
 Notes:
 - `tool` from `yellow`/`red` resolves to the working color: `purple` if `SUB > 0`,
   else `green`.
-- `white` is sticky against `perm`/`idle`: a notification (including the ~60s idle
-  nudge) never recolors a done tab. Only a new `prompt` moves it off `white`.
+- `white` is sticky against `idle` and tool/subagent events, but a `perm`
+  (permission request) moves it to `red` because that is actionable. A new
+  `prompt` moves it to `green`.

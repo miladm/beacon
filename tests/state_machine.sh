@@ -77,9 +77,9 @@ t "subagent_end" yellow 1 subdown yellow 0
 t "subagent_end" white  1 subdown white  0
 t "subagent_end" green  0 subdown green  0
 
-echo "-- perm / idle: set attention, but never override done (white) --"
-for s in green purple yellow red; do t "perm" "$s" 0 perm red; done
-t "perm" white 0 perm white
+echo "-- perm: always red (actionable, even from done) --"
+for s in green purple yellow red white; do t "perm" "$s" 0 perm red; done
+echo "-- idle: yellow, but never overrides done (white) --"
 for s in green purple yellow red; do t "idle" "$s" 0 idle yellow; done
 t "idle" white 0 idle white
 
