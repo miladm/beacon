@@ -1,0 +1,9 @@
+# editor / OS cruft
+.DS_Store
+*.swp
+
+# settings backups produced by the installer
+*.bak
+
+# local runtime state (should never be committed)
+beacon/

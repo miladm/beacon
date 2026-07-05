@@ -1,0 +1,12 @@
+{
+  "_comment": "Reference only. install.sh merges these into ~/.claude/settings.json for you, using the absolute path to the installed script. Replace ~/.claude/hooks/beacon.sh if you install it elsewhere.",
+  "hooks": {
+    "SessionStart":     [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh start" } ] } ],
+    "UserPromptSubmit": [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh capture" } ] } ],
+    "PreToolUse":       [ { "matcher": "Task", "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh subup" } ] } ],
+    "SubagentStop":     [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh subdown" } ] } ],
+    "Notification":     [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh notify" } ] } ],
+    "Stop":             [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh done" } ] } ],
+    "SessionEnd":       [ { "hooks": [ { "type": "command", "command": "~/.claude/hooks/beacon.sh end" } ] } ]
+  }
+}
