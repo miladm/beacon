@@ -153,10 +153,17 @@ case "$cmd" in
     echo green > "$STATE"; start_daemon; paint ;;
   subup)                                    # PreToolUse(Task): subagent started
     n=$(cat "$SUB" 2>/dev/null); n=$(( ${n:-0} + 1 )); echo "$n" > "$SUB"
-    echo purple > "$STATE"; paint ;;
+    cur=""; [ -r "$STATE" ] && IFS= read -r cur < "$STATE" 2>/dev/null
+    case "$cur" in green|purple|"") echo purple > "$STATE" ;; esac
+    paint ;;
   subdown)                                  # SubagentStop: a subagent finished
     n=$(cat "$SUB" 2>/dev/null); n=$(( ${n:-1} - 1 )); [ "$n" -lt 0 ] && n=0; echo "$n" > "$SUB"
-    if [ "$n" -gt 0 ]; then echo purple > "$STATE"; else echo green > "$STATE"; fi
+    # Only adjust color while actually working; never resurrect a finished/idle
+    # tab -- a straggler SubagentStop can arrive at or after Stop.
+    cur=""; [ -r "$STATE" ] && IFS= read -r cur < "$STATE" 2>/dev/null
+    case "$cur" in
+      green|purple) if [ "$n" -gt 0 ]; then echo purple > "$STATE"; else echo green > "$STATE"; fi ;;
+    esac
     paint ;;
   notify)                                   # Notification: blocked or idle
     input=$(cat); msg=$(printf '%s' "$input" | json_get message)

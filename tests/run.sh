@@ -65,6 +65,21 @@ check "notify permission -> red" "$(state)" "red"
 printf '{"message":"Claude is waiting for your input"}' | sh "$SCRIPT" notify
 check "notify idle -> yellow" "$(state)" "yellow"
 
+# 5b. regression: a straggler SubagentStop after done must NOT resurrect green
+reset
+printf '{"cwd":"/x/p","prompt":"do work"}' | sh "$SCRIPT" capture   # -> green
+sh "$SCRIPT" subup                                                  # -> purple, count 1
+sh "$SCRIPT" done                                                   # -> white, count 0
+sh "$SCRIPT" subdown                                                # straggler
+check "straggler subdown stays white" "$(state)" "white"
+# blocked/waiting must also survive a straggler subdown
+reset
+printf '{"cwd":"/x/p","prompt":"do work"}' | sh "$SCRIPT" capture
+sh "$SCRIPT" subup
+printf '{"message":"needs your permission"}' | sh "$SCRIPT" notify  # -> red
+sh "$SCRIPT" subdown                                               # straggler
+check "straggler subdown keeps red" "$(state)" "red"
+
 # 6. the device actually receives the topic text
 reset
 printf '{"cwd":"/x/demo","prompt":"hello world"}' | sh "$SCRIPT" capture
