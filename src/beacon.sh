@@ -28,14 +28,14 @@
 #   BEACON_STATE_DIR      where per-tab state files live (default ~/.claude/beacon)
 #   BEACON_DEVICE         force the target tty (mainly for tests)
 #   BEACON_NO_DAEMON      set to skip launching the repaint daemon (tests)
-#   BEACON_WORK_INTERVAL  repaint seconds while working (default 0.08)
+#   BEACON_WORK_INTERVAL  repaint seconds while working (default 0.02)
 #   BEACON_IDLE_INTERVAL  repaint seconds while idle (default 0.3)
 
 VERSION=0.1.0
 cmd="${1:-}"
 
 STATE_DIR="${BEACON_STATE_DIR:-$HOME/.claude/beacon}"
-WORK_INTERVAL="${BEACON_WORK_INTERVAL:-0.08}"
+WORK_INTERVAL="${BEACON_WORK_INTERVAL:-0.02}"
 IDLE_INTERVAL="${BEACON_IDLE_INTERVAL:-0.3}"
 mkdir -p "$STATE_DIR" 2>/dev/null
 

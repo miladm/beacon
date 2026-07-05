@@ -79,7 +79,7 @@ All optional, via environment variables:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `BEACON_STATE_DIR`      | `~/.claude/beacon` | Where per-tab state files live |
-| `BEACON_WORK_INTERVAL`  | `0.08` | Repaint seconds while working (lower = smoother vs Claude's spinner, more CPU) |
+| `BEACON_WORK_INTERVAL`  | `0.02` | Repaint seconds while working (lower = smoother vs Claude's spinner, more CPU) |
 | `BEACON_IDLE_INTERVAL`  | `0.3`  | Repaint seconds while idle |
 | `CLAUDE_CONFIG_DIR`         | `~/.claude` | Claude Code config dir (respected by the installer) |
 
