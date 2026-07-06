@@ -60,11 +60,17 @@ check "subdown0 -> count 0"   "$(sub)"   "0"
 # 5. done and notification states
 sh "$SCRIPT" done
 check "done -> white"         "$(state)" "white"
-# notifications reflect blocks/idle during an ACTIVE turn
+# permission from a working tab -> red
 reset
 printf '{"cwd":"/x/p","prompt":"go"}' | sh "$SCRIPT" capture
 printf '{"message":"Claude needs your permission to run bash"}' | sh "$SCRIPT" notify
 check "notify permission -> red" "$(state)" "red"
+# idle must NOT downgrade a red block (the ~60s nudge can fire while blocked)
+printf '{"message":"Claude is waiting for your input"}' | sh "$SCRIPT" notify
+check "idle does not downgrade red" "$(state)" "red"
+# idle from a working tab -> yellow
+reset
+printf '{"cwd":"/x/p","prompt":"go"}' | sh "$SCRIPT" capture
 printf '{"message":"Claude is waiting for your input"}' | sh "$SCRIPT" notify
 check "notify idle -> yellow" "$(state)" "yellow"
 # a notification must NOT override a done (white) tab

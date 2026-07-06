@@ -79,8 +79,9 @@ t "subagent_end" green  0 subdown green  0
 
 echo "-- perm: always red (actionable, even from done) --"
 for s in green purple yellow red white; do t "perm" "$s" 0 perm red; done
-echo "-- idle: yellow, but never overrides done (white) --"
-for s in green purple yellow red; do t "idle" "$s" 0 idle yellow; done
+echo "-- idle: yellow, but never overrides a block (red) or done (white) --"
+for s in green purple yellow; do t "idle" "$s" 0 idle yellow; done
+t "idle" red   0 idle red
 t "idle" white 0 idle white
 
 echo "-- stop: -> white, SUB reset to 0 --"

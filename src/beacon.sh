@@ -179,7 +179,7 @@ case "$cmd" in
     cur=""; [ -r "$STATE" ] && IFS= read -r cur < "$STATE" 2>/dev/null
     case "$msg" in
       *ermission*) echo red > "$STATE" ;;                       # actionable: always red
-      *)           [ "$cur" != white ] && echo yellow > "$STATE" ;;  # idle: never over done
+      *) case "$cur" in red|white) : ;; *) echo yellow > "$STATE" ;; esac ;;  # idle: never over a block or done
     esac
     paint ;;
   done)                                     # Stop: turn finished

@@ -48,7 +48,9 @@ Let `w()` = `purple` if `SUB > 0` else `green` (the resolved working color).
 - **task_start**: `SUB <- SUB + 1`; if `STATE in {green, purple, unset}` then `STATE <- purple`.
 - **subagent_end**: `SUB <- max(0, SUB - 1)`; if `STATE in {green, purple}` then `STATE <- w()`.
 - **perm**: `STATE <- red` (always; a permission request is actionable even from a done tab).
-- **idle**: if `STATE != white` then `STATE <- yellow`.
+- **idle**: if `STATE not in {red, white}` then `STATE <- yellow` (never downgrades a
+  block or recolors a done tab; the ~60s idle nudge can fire while a permission
+  prompt is still unanswered).
 - **stop**: `SUB <- 0`; `STATE <- white`.
 - **session_start**: `STATE <- white`; `SUB <- 0`; clear topic.
 - **session_end**: remove all state files (tab is gone).
@@ -78,7 +80,7 @@ Each cell is the next `STATE`. Counter changes are shown as `SUB++` / `SUB--`
 | green   | green | green  | purple (SUB++) | green        | red   | yellow | white |
 | purple  | green | purple | purple (SUB++) | SUB>1 ? purple : green (SUB--) | red | yellow | white |
 | yellow  | green | green  | yellow (SUB++) | yellow (SUB--) | red  | yellow | white |
-| red     | green | green  | red (SUB++)    | red (SUB--)    | red  | yellow | white |
+| red     | green | green  | red (SUB++)    | red (SUB--)    | red  | red    | white |
 | white   | green | white  | white (SUB++)  | white (SUB--)  | **red** | white | white |
 
 Notes:
@@ -87,3 +89,6 @@ Notes:
 - `white` is sticky against `idle` and tool/subagent events, but a `perm`
   (permission request) moves it to `red` because that is actionable. A new
   `prompt` moves it to `green`.
+- `red` (a permission block) is sticky against `idle`: the ~60s idle nudge never
+  downgrades a block to `yellow`. It clears only when the agent resumes (`tool`),
+  finishes (`stop`), or a new `prompt` starts.
