@@ -37,7 +37,7 @@ def main():
     wanted = {
         "SessionStart":     [entry(script, "start")],
         "UserPromptSubmit": [entry(script, "capture")],
-        "PreToolUse":       [entry(script, "subup", matcher="Task"), entry(script, "work")],
+        "PreToolUse":       [entry(script, "subup", matcher="Task|Agent"), entry(script, "work")],
         "PostToolUse":      [entry(script, "work")],
         "SubagentStop":     [entry(script, "subdown")],
         "Notification":     [entry(script, "notify")],

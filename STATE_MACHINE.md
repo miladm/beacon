@@ -30,7 +30,7 @@ Each event is a Claude Code hook wired to one `beacon.sh` subcommand.
 |-------|------|------------|
 | `prompt`        | `UserPromptSubmit`            | `capture` |
 | `tool`          | `PreToolUse` (any) / `PostToolUse` | `work` |
-| `task_start`    | `PreToolUse` (matcher `Task`) | `subup` |
+| `task_start`    | `PreToolUse` (matcher `Task\|Agent`) | `subup` |
 | `subagent_end`  | `SubagentStop`                | `subdown` |
 | `perm`          | `Notification` (msg has "permission") | `notify` |
 | `idle`          | `Notification` (otherwise)    | `notify` |
