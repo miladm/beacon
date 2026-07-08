@@ -114,6 +114,26 @@ printf '{"message":"needs your permission"}' | sh "$SCRIPT" notify  # red
 sh "$SCRIPT" work                                                   # active, subagent still running
 check "work with subagent -> purple" "$(state)" "purple"
 
+# 5d. nested subagents: counter is depth-agnostic -> purple until the WHOLE tree drains
+# main -> A ; A -> B ; A -> C ; then B, C, A finish in some order.
+reset
+printf '{"cwd":"/x/p","prompt":"go"}' | sh "$SCRIPT" capture         # green
+sh "$SCRIPT" subup                                                   # main spawns A
+check "nested A running -> purple" "$(state)" "purple"
+check "nested count = 1"          "$(sub)"   "1"
+sh "$SCRIPT" subup                                                   # A spawns B
+sh "$SCRIPT" subup                                                   # A spawns C
+check "nested A+B+C -> purple"    "$(state)" "purple"
+check "nested count = 3"          "$(sub)"   "3"
+sh "$SCRIPT" subdown                                                 # B finishes
+check "B done, tree busy -> purple" "$(state)" "purple"
+sh "$SCRIPT" subdown                                                 # C finishes
+check "C done, A still busy -> purple" "$(state)" "purple"
+check "nested count = 1"          "$(sub)"   "1"
+sh "$SCRIPT" subdown                                                 # A finishes -> tree drained
+check "tree drained -> green"     "$(state)" "green"
+check "nested count = 0"          "$(sub)"   "0"
+
 # 6. the device actually receives the topic text
 reset
 printf '{"cwd":"/x/demo","prompt":"hello world"}' | sh "$SCRIPT" capture
@@ -136,6 +156,16 @@ sh "$SCRIPT" help    >/dev/null 2>&1 && pass "help ok"    || fail "help ok"
 echo
 echo "=== state-machine matrix (tests/state_machine.sh) ==="
 if sh "$HERE/tests/state_machine.sh"; then :; else FAILED=$((FAILED + 1)); fi
+
+# 10. real end-to-end: daemon paints a real PTY, read back the rendered color
+if command -v python3 >/dev/null 2>&1; then
+  echo
+  echo "=== real PTY integration (tests/integration_pty.py) ==="
+  if python3 "$HERE/tests/integration_pty.py"; then :; else FAILED=$((FAILED + 1)); fi
+else
+  echo
+  echo "(skipping real PTY integration test: python3 not found)"
+fi
 
 echo
 if [ "$FAILED" -eq 0 ]; then

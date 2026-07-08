@@ -103,7 +103,13 @@ Removes the installed script and the beacon hook entries (backing up `settings.j
 ./tests/run.sh
 ```
 
-Pure POSIX sh, no dependencies beyond a shell. Uses a temp `HOME` and a fake device so it never touches your real terminal.
+This runs three layers: behavior checks, the exhaustive state-machine transition
+matrix (`tests/state_machine.sh`), and a **real PTY integration test**
+(`tests/integration_pty.py`, needs `python3`) that starts the actual repaint
+daemon against a genuine pseudo-terminal, fires real hook processes, and reads
+back the escape bytes rendered on the device to confirm the painted color. The
+sh layers use a temp `HOME` and a fake device so they never touch your real
+terminal.
 
 ## License
 
